@@ -29,7 +29,11 @@ DB_PATH = Path("data/warehouse.duckdb")
 def connect(db_path: Path = DB_PATH) -> duckdb.DuckDBPyConnection:
     """Open (creating it if needed) the DuckDB database at ``db_path`` and return
     the connection."""
-    raise NotImplementedError("Day 2: implement connect()")
+
+    # Make sure the parent directory exists before DuckDB tries to write the file
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+
+    return duckdb.connect(str(db_path))
 
 
 def load_orders(con: duckdb.DuckDBPyConnection, raw_dir: Path = RAW_DIR) -> int:
