@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from de_pipeline.config import settings
+from de_pipeline.config import get_s3_client, settings
 
 # Where downloaded raw files land. (data/ is git-ignored.)
 RAW_DIR = Path("data/raw")
@@ -26,16 +26,35 @@ RAW_DIR = Path("data/raw")
 def fetch_object(key: str, dest_dir: Path = RAW_DIR) -> Path:
     """Download the object ``key`` from the bucket into ``dest_dir``, and return
     the local path it was written to."""
-    raise NotImplementedError("Day 1: implement fetch_object()")
 
+    # Create the destination directory if it doesn't already exist
+    dest_dir.mkdir(parents=True, exist_ok=True)
+
+    # Build the local path using the filename portion of the key
+    local_path = dest_dir / Path(key).name
+
+    # Get the S3 client
+    s3 = get_s3_client()
+
+    # Download the file
+    s3.download_file(
+        settings.bucket,
+        key,
+        str(local_path)
+    )
+
+    return local_path
 
 def fetch_all(dest_dir: Path = RAW_DIR) -> dict[str, Path]:
-    """Download both source files and return a mapping of name -> local path:
-    ``{"orders": <path>, "customers": <path>}``.
+    """Download both source files and return a mapping of name -> local path."""
 
-    (The object keys to download are ``settings.orders_key`` and
-    ``settings.customers_key``.)"""
-    raise NotImplementedError("Day 1: implement fetch_all()")
+    orders_path = fetch_object(settings.orders_key, dest_dir)
+    customers_path = fetch_object(settings.customers_key, dest_dir)
+
+    return {
+        "orders": orders_path,
+        "customers": customers_path
+    }
 
 
 if __name__ == "__main__":
