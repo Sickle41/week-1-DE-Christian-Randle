@@ -49,7 +49,12 @@ def load_orders(con: duckdb.DuckDBPyConnection, raw_dir: Path = RAW_DIR) -> int:
 def load_customers(con: duckdb.DuckDBPyConnection, raw_dir: Path = RAW_DIR) -> int:
     """Load ``raw_dir/customers.json`` into a table named ``raw_customers``.
     Return the number of rows loaded."""
-    raise NotImplementedError("Day 2: implement load_customers()")
+    json_path = raw_dir / "customers.json"
+    path = json_path.as_posix()
+    con.execute(
+        f"CREATE OR REPLACE TABLE raw_customers AS SELECT * FROM read_json('{path}')"
+    )
+    return con.execute("SELECT COUNT(*) FROM raw_customers").fetchone()[0]
 
 
 def load_all(con: duckdb.DuckDBPyConnection, raw_dir: Path = RAW_DIR) -> dict[str, int]:
