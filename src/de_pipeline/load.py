@@ -39,7 +39,11 @@ def connect(db_path: Path = DB_PATH) -> duckdb.DuckDBPyConnection:
 def load_orders(con: duckdb.DuckDBPyConnection, raw_dir: Path = RAW_DIR) -> int:
     """Load ``raw_dir/orders.csv`` into a table named ``raw_orders``. Return the
     number of rows loaded."""
-    raise NotImplementedError("Day 2: implement load_orders()")
+    csv_path = raw_dir / "orders.csv"
+    con.execute(
+        f"CREATE OR REPLACE TABLE raw_orders AS SELECT * FROM read_csv('{csv_path.as_posix()}')"
+    )
+    return con.execute("SELECT COUNT(*) FROM raw_orders").fetchone()[0]
 
 
 def load_customers(con: duckdb.DuckDBPyConnection, raw_dir: Path = RAW_DIR) -> int:
