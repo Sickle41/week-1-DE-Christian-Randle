@@ -29,7 +29,18 @@ def clean_orders(con: duckdb.DuckDBPyConnection) -> int:
     normalize ``status`` to lower-case with surrounding spaces removed, add a
     ``line_total`` column (quantity * price), and drop rows that are missing a
     quantity or price."""
-    raise NotImplementedError("Day 2/3: implement clean_orders()")
+    con.execute("""
+        CREATE OR REPLACE TABLE clean_orders AS
+        SELECT
+            * REPLACE (
+                strptime(order_date, '%d-%b-%Y')::DATE AS order_date,
+                lower(trim(status)) AS status
+            ),
+            quantity * price AS line_total
+        FROM raw_orders
+        WHERE quantity IS NOT NULL AND price IS NOT NULL
+    """)
+    return con.execute("SELECT COUNT(*) FROM clean_orders").fetchone()[0]
 
 
 def customer_order_summary(con: duckdb.DuckDBPyConnection) -> int:
