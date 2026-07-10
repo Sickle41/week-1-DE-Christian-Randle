@@ -60,7 +60,10 @@ def load_customers(con: duckdb.DuckDBPyConnection, raw_dir: Path = RAW_DIR) -> i
 def load_all(con: duckdb.DuckDBPyConnection, raw_dir: Path = RAW_DIR) -> dict[str, int]:
     """Load both files and return ``{table_name: row_count}`` — i.e.
     ``{"raw_orders": ..., "raw_customers": ...}``."""
-    raise NotImplementedError("Day 2: implement load_all()")
+    return {
+        "raw_orders": load_orders(con, raw_dir),
+        "raw_customers": load_customers(con, raw_dir),
+    }
 
 
 if __name__ == "__main__":
