@@ -47,9 +47,23 @@ def customer_order_summary(con: duckdb.DuckDBPyConnection) -> int:
     """Build a ``customer_order_summary`` table with one row per customer —
     ``customer_id``, ``name``, ``order_count``, ``total_revenue`` — by joining
     ``clean_orders`` to ``raw_customers``. Return its row count."""
-    raise NotImplementedError("Day 2/3: implement customer_order_summary()")
+    con.execute("""
+        CREATE OR REPLACE TABLE customer_order_summary AS
+        SELECT
+            c.customer_id,
+            c.name,
+            count(o.order_id) AS order_count,
+            sum(o.line_total) AS total_revenue
+        FROM raw_customers AS c
+        JOIN clean_orders AS o ON o.customer_id = c.customer_id
+        GROUP BY c.customer_id, c.name
+    """)
+    return con.execute("SELECT COUNT(*) FROM customer_order_summary").fetchone()[0]
 
 
 def run_transforms(con: duckdb.DuckDBPyConnection) -> dict[str, int]:
     """Run every transform in order and return ``{table_name: row_count}``."""
-    raise NotImplementedError("Day 2/3: implement run_transforms()")
+    return {
+        "clean_orders": clean_orders(con),
+        "customer_order_summary": customer_order_summary(con),
+    }
