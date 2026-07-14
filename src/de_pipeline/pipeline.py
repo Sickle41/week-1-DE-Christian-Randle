@@ -14,7 +14,15 @@ from de_pipeline import fetch, load, transform  # noqa: F401
 def main() -> None:
     """Run the full pipeline end to end: fetch the source files, open a DuckDB
     connection, load the raw tables, run the transforms, and print a summary."""
-    raise NotImplementedError("Day 3: orchestrate fetch -> load -> transform")
+    fetched = fetch.fetch_all()
+    print("fetched:", {name: str(path) for name, path in fetched.items()})
+
+    con = load.connect()
+    loaded = load.load_all(con)
+    print("loaded:", loaded)
+
+    transformed = transform.run_transforms(con)
+    print("transformed:", transformed)
 
 
 if __name__ == "__main__":
